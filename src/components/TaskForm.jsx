@@ -7,7 +7,7 @@ export function TaskForm({ onSubmit, isLoading, initialData }) {
     description: initialData?.description || '',
     dueDate: initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '',
     priority: initialData?.priority || 'medium',
-    file: null
+    file: initialData?.fileName ? { name: initialData.fileName } : null
   });
 
   const { getRootProps, getInputProps } = useDropzone({

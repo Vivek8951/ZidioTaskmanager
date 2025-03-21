@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 export function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -49,11 +50,11 @@ export function Dashboard() {
     }
   };
 
-  const handleToggleComplete = async (id) => {
+  const handleToggleComplete = async (taskId) => {
     try {
-      const updatedTask = await tasksApi.toggleComplete(id);
+      const updatedTask = await tasksApi.toggleComplete(taskId);
       setTasks(tasks.map(task => 
-        task.id === id ? updatedTask : task
+        task._id === taskId ? updatedTask : task
       ));
       toast.success('Task status updated');
     } catch (error) {
@@ -61,13 +62,38 @@ export function Dashboard() {
     }
   };
 
-  const handleDeleteTask = async (id) => {
+  const handleDeleteTask = async (taskId) => {
     try {
-      await tasksApi.delete(id);
-      setTasks(tasks.filter(task => task.id !== id));
+      await tasksApi.delete(taskId);
+      setTasks(tasks.filter(task => task._id !== taskId));
       toast.success('Task deleted successfully');
     } catch (error) {
       toast.error('Failed to delete task');
+    }
+  };
+
+  const handleEditTask = async (data) => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('description', data.description);
+      formData.append('dueDate', data.dueDate);
+      formData.append('priority', data.priority);
+      if (data.file) {
+        formData.append('file', data.file);
+      }
+
+      const updatedTask = await tasksApi.update(editingTask._id, formData);
+      setTasks(tasks.map(task => 
+        task._id === editingTask._id ? updatedTask : task
+      ));
+      setEditingTask(null);
+      toast.success('Task updated successfully');
+    } catch (error) {
+      toast.error('Failed to update task');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -104,8 +130,14 @@ export function Dashboard() {
           <DashboardStats tasks={tasks} />
           
           <div className="mt-8">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Create New Task</h2>
-            <TaskForm onSubmit={handleCreateTask} isLoading={isLoading} />
+            <h2 className="text-lg font-medium text-gray-900 mb-4">
+              {editingTask ? 'Edit Task' : 'Create New Task'}
+            </h2>
+            <TaskForm 
+              onSubmit={editingTask ? handleEditTask : handleCreateTask} 
+              isLoading={isLoading}
+              initialData={editingTask}
+            />
           </div>
 
           <div className="mt-8">
@@ -113,11 +145,11 @@ export function Dashboard() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {tasks.map(task => (
                 <TaskCard
-                  key={task.id}
+                  key={task._id}
                   task={task}
                   onToggleComplete={handleToggleComplete}
                   onDelete={handleDeleteTask}
-                  onEdit={() => {}}
+                  onEdit={setEditingTask}
                 />
               ))}
             </div>

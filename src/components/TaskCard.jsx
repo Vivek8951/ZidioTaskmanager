@@ -9,6 +9,12 @@ export function TaskCard({ task, onToggleComplete, onDelete, onEdit }) {
     low: 'text-green-600'
   };
 
+  const handleFilePreview = () => {
+    if (task.file) {
+      window.open(`http://localhost:5000${task.file}`, '_blank');
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-4">
       <div className="flex items-start justify-between">
@@ -17,7 +23,7 @@ export function TaskCard({ task, onToggleComplete, onDelete, onEdit }) {
           <p className="text-sm text-gray-500">{task.description}</p>
         </div>
         <button
-          onClick={() => onDelete(task.id)}
+          onClick={() => onDelete(task._id)}
           className="text-gray-400 hover:text-red-500"
         >
           <Trash2 className="w-5 h-5" />
@@ -34,7 +40,10 @@ export function TaskCard({ task, onToggleComplete, onDelete, onEdit }) {
       </div>
 
       {task.fileName && (
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
+        <div 
+          onClick={handleFilePreview}
+          className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+        >
           <FileText className="w-4 h-4" />
           <span>{task.fileName}</span>
         </div>
@@ -42,7 +51,7 @@ export function TaskCard({ task, onToggleComplete, onDelete, onEdit }) {
 
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <button
-          onClick={() => onToggleComplete(task.id)}
+          onClick={() => onToggleComplete(task._id)}
           className={`flex items-center space-x-2 ${task.completed ? 'text-green-600' : 'text-gray-500'} hover:text-green-700`}
         >
           {task.completed ? (
