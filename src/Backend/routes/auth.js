@@ -29,31 +29,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Reset password
-router.post('/reset-password', async (req, res) => {
-  try {
-    const { email, newPassword } = req.body;
-
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Hash the new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    // Update user's password
-    user.password = hashedPassword;
-    await user.save();
-
-    res.status(200).json({ message: 'Password reset successful' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error resetting password', error: error.message });
-  }
-});
-
 // Login user
 router.post('/login', async (req, res) => {
   try {
