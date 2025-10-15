@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
-import Task from '../models/Task.js';
+import Task from '../models/task.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
